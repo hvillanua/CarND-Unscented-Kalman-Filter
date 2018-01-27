@@ -64,9 +64,28 @@ public:
   ///* Augmented state dimension
   int n_aug_;
 
+  ///* Number of sigma points
+  int n_sig_;
+
   ///* Sigma point spreading parameter
   double lambda_;
 
+  ///* Noise covariance matrix for radar
+  MatrixXd R_radar_;
+
+  ///* Noise covariance matrix for lidar
+  MatrixXd R_lidar_;
+
+  ///* Process noise covariance matrix
+  MatrixXd Q_;
+
+  double NIS_radar_;
+
+  double NIS_lidar_;
+
+  // Output filestreams for radar and laser NIS
+  std::ofstream NISvals_radar_;
+  std::ofstream NISvals_laser_;
 
   /**
    * Constructor
@@ -102,6 +121,12 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  /**
+   * Updates the state and the state covariance matrix using a radar/lidar measurement
+   * @param meas_package The measurement at k+1
+   */
+  void UpdateUKF(MeasurementPackage meas_package, MatrixXd Zsig, int n_z);
 };
 
 #endif /* UKF_H */

@@ -28,6 +28,7 @@ std::string hasData(std::string s) {
 
 int main()
 {
+
   uWS::Hub h;
 
   // Create a Kalman Filter instance
@@ -42,13 +43,12 @@ int main()
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
-
     if (length && length > 2 && data[0] == '4' && data[1] == '2')
     {
 
       auto s = hasData(std::string(data));
       if (s != "") {
-      	
+
         auto j = json::parse(s);
 
         std::string event = j[0].get<std::string>();
@@ -89,8 +89,8 @@ int main()
           		meas_package.raw_measurements_ << ro,theta, ro_dot;
           		iss >> timestamp;
           		meas_package.timestamp_ = timestamp;
-          }
-          float x_gt;
+        }
+        float x_gt;
     	  float y_gt;
     	  float vx_gt;
     	  float vy_gt;
@@ -100,13 +100,13 @@ int main()
     	  iss >> vy_gt;
     	  VectorXd gt_values(4);
     	  gt_values(0) = x_gt;
-    	  gt_values(1) = y_gt; 
+    	  gt_values(1) = y_gt;
     	  gt_values(2) = vx_gt;
     	  gt_values(3) = vy_gt;
     	  ground_truth.push_back(gt_values);
-          
-          //Call ProcessMeasurment(meas_package) for Kalman filter
-    	  ukf.ProcessMeasurement(meas_package);    	  
+
+        //Call ProcessMeasurment(meas_package) for Kalman filter
+    	  ukf.ProcessMeasurement(meas_package);
 
     	  //Push the current estimated x,y positon from the Kalman filter's state vector
 
@@ -124,25 +124,25 @@ int main()
     	  estimate(1) = p_y;
     	  estimate(2) = v1;
     	  estimate(3) = v2;
-    	  
+
     	  estimations.push_back(estimate);
 
     	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 
-          json msgJson;
-          msgJson["estimate_x"] = p_x;
-          msgJson["estimate_y"] = p_y;
-          msgJson["rmse_x"] =  RMSE(0);
-          msgJson["rmse_y"] =  RMSE(1);
-          msgJson["rmse_vx"] = RMSE(2);
-          msgJson["rmse_vy"] = RMSE(3);
-          auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
-          // std::cout << msg << std::endl;
-          ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-	  
+        json msgJson;
+        msgJson["estimate_x"] = p_x;
+        msgJson["estimate_y"] = p_y;
+        msgJson["rmse_x"] =  RMSE(0);
+        msgJson["rmse_y"] =  RMSE(1);
+        msgJson["rmse_vx"] = RMSE(2);
+        msgJson["rmse_vy"] = RMSE(3);
+        auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
+        // std::cout << msg << std::endl;
+        ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+
         }
       } else {
-        
+
         std::string msg = "42[\"manual\",{}]";
         ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
       }
@@ -186,90 +186,3 @@ int main()
   }
   h.run();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
