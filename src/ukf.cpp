@@ -123,9 +123,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
         // transform from polar to cartesian
         float x = rho * cos(phi);
-        x = (x > EPSYLON) ? x : EPSYLON;
+        x = (x < 0) ? min(x, -EPSYLON) : max(x, EPSYLON);
         float y = rho * sin(phi);
-        y = (y > EPSYLON) ? y : EPSYLON;
+        y = (y < 0) ? min(y, -EPSYLON) : max(y, EPSYLON);
         float vx = rho_dot * cos(phi);
         float vy = rho_dot * sin(phi);
         float v = sqrt(vx * vx + vy * vy);
@@ -140,11 +140,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       }
 
       //state covariance matrix P
-      P_ << 1, 0, 0, 0, 0,
-            0, 1, 0, 0, 0,
-            0, 0, 1, 0, 0,
-            0, 0, 0, 1, 0,
-            0, 0, 0, 0, 1;
+      P_ = MatrixXd::Identity(n_x_, n_x_);
 
       // done initializing, no need to predict or update
       time_us_ = meas_package.timestamp_;
@@ -361,7 +357,9 @@ void UKF::UpdateRadar(MeasurementPackage meas_package)
   for (int i=0; i<n_sig_; i++)
   {
     px = Xsig_pred_(0,i);
+    px = (px < 0) ? min(px, -EPSYLON) : max(px, EPSYLON);
     py = Xsig_pred_(1,i);
+    py = (py < 0) ? min(py, -EPSYLON) : max(py, EPSYLON);
     v = Xsig_pred_(2,i);
     yaw = Xsig_pred_(3,i);
     yawd = Xsig_pred_(4,i);
@@ -437,9 +435,10 @@ void UKF::UpdateUKF(MeasurementPackage meas_package, MatrixXd Zsig, int n_z)
      diff2 = Zsig.col(i) - z_pred;
 
      if (meas_package.sensor_type_ == MeasurementPackage::RADAR){ // Radar
-       diff1(1) = fmod(diff1(1), M_PI);
        diff2(1) = fmod(diff2(1), M_PI);
      }
+
+     diff1(3) = fmod(diff1(3), M_PI);
 
      Tc += weights_(i) * diff1 * diff2.transpose();
      //angle normalization
