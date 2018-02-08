@@ -306,7 +306,8 @@ void UKF::Prediction(double delta_t) {
   {
     diff = Xsig_pred_.col(i) - x_;
     //angle normalization
-    diff(3) = fmod(diff(3), M_PI);
+    while( diff(3) > M_PI ) diff(3) -= 2.*M_PI;
+    while( diff(3) < -M_PI ) diff(3) += 2.*M_PI;
     P_ += weights_(i) * diff * diff.transpose();
   }
 
@@ -412,7 +413,8 @@ void UKF::UpdateUKF(MeasurementPackage meas_package, MatrixXd Zsig, int n_z)
   {
     diff = Zsig.col(i) - z_pred;
     // angle normalization
-    diff(1) = fmod(diff(1), M_PI);
+    while( diff(1) > M_PI ) diff(1) -= 2.*M_PI;
+    while( diff(1) < -M_PI ) diff(1) += 2.*M_PI;
     S += weights_(i) * diff * diff.transpose();
   }
 
@@ -435,14 +437,17 @@ void UKF::UpdateUKF(MeasurementPackage meas_package, MatrixXd Zsig, int n_z)
      diff2 = Zsig.col(i) - z_pred;
 
      if (meas_package.sensor_type_ == MeasurementPackage::RADAR){ // Radar
-       diff2(1) = fmod(diff2(1), M_PI);
+       while( diff2(1) > M_PI ) diff2(1) -= 2.*M_PI;
+       while( diff2(1) < -M_PI ) diff2(1) += 2.*M_PI;
      }
 
-     diff1(3) = fmod(diff1(3), M_PI);
+     while( diff1(3) > M_PI ) diff1(3) -= 2.*M_PI;
+     while( diff1(3) < -M_PI ) diff1(3) += 2.*M_PI;
 
      Tc += weights_(i) * diff1 * diff2.transpose();
      //angle normalization
-     Tc(3) = fmod(Tc(3), M_PI);
+     while( Tc(3) > M_PI ) Tc(3) -= 2.*M_PI;
+     while( Tc(3) < -M_PI ) Tc(3) += 2.*M_PI;
    }
 
    //calculate Kalman gain K;
@@ -450,7 +455,8 @@ void UKF::UpdateUKF(MeasurementPackage meas_package, MatrixXd Zsig, int n_z)
    VectorXd z_diff = z-z_pred;
 
    if (meas_package.sensor_type_ == MeasurementPackage::RADAR){ // Radar
-     z_diff(1) = fmod(z_diff(1), M_PI);
+     while( z_diff(1) > M_PI ) z_diff(1) -= 2.*M_PI;
+     while( z_diff(1) < -M_PI ) z_diff(1) += 2.*M_PI;
    }
 
    // calculate NIS
